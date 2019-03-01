@@ -1,4 +1,9 @@
 const axios = require('axios');
+require('dotenv').config();
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const db = require('../database/dbConfig');
+
 
 const { authenticate } = require('../auth/authenticate');
 
