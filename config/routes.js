@@ -13,6 +13,18 @@ module.exports = server => {
   server.get('/api/jokes', authenticate, getJokes);
 };
 
+
+generateToken = (user) => {
+  const payload = {
+      username: user.username,
+  };
+  const options = {
+      expiresIn: '1d',
+  };
+  const secret = process.env.JWT_SECRET;
+  return jwt.sign(payload, secret, options);
+};
+
 function register(req, res) {
   // implement user registration
   let user = req.body;
@@ -27,8 +39,23 @@ function register(req, res) {
 };
 
 function login(req, res) {
-  // implement user login
-}
+  const user = req.body
+  db('users')
+  .where({username: user.username}).first()
+  .then((users) => {
+     if (users && bcrypt.compareSync(user.password, users.password)) {
+        const token = generateToken(user)
+        res.json({message: `Welcome back, ${user.username}!`, token})
+      } else {
+        res.status(400).json({message: "No! You invalid."})
+      }
+    })
+    .catch((err) => {
+      res
+        .status(400)
+        .json(err)
+    })
+};
 
 function getJokes(req, res) {
   const requestOptions = {
